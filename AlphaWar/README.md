@@ -10,11 +10,13 @@
 4. The game ends when the rope reaches one player’s side, determining the winner.
 
 ## Running The Game
-1. **Open `COM_Finder.py`:**
+1. **Select the BCItoolkit mamba environment:**
+   - In VSCode, press `ctrl + shift + p`, then enter/select "Python: Select Interpreter" -> find and select "Python 3.10.15 ('BCItoolkit')"
+2. **Open `COM_Finder.py`:**
    - Plug only one Cyton Dongle in and run the script by clicking the small 'play' arrow in the top right to start the game.
    - This will output which COM port is associated with the board you plugged in - remember which player's board this is. [i.e, 'COM7']
    - Now plug in the other Cyton dongle and run the script again. This time there should be two devices; one from the first board and now a second from the other board.
-2. **Open `AlphaWar.py` & Adjust Configuration**
+3. **Open `AlphaWar.py` & Adjust Configuration**
    - Any config adjustments will be at the top of script, immediately after imports
    - Adjust player names - this can be any string 
    - Adjust serial ports:
@@ -23,8 +25,7 @@
      - `BoardIds.CYTON_BOARD.value` should be used if using the OpenBCI Cyton Boards
      - `BoardIds.SYNTHETIC_BOARD.value` is used for testing - this uses *Simulated data*
 
-3. **Select Environment & Start the Game:**
-   - Press `ctrl + shift + p`, then enter/select "Python: Select Interpreter" -> find and select "Python"
+4. **Select Environment & Start the Game:**
    - When you have `AlphaWar.py` open, click the small 'play' arrow in the top right to start the game.
 
 ## Game Controls
