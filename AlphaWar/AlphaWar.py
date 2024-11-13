@@ -10,12 +10,12 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 # Set the board IDs and serial ports for the players
 player_1_name = 'Player 1'
 player_1_board_id = BoardIds.CYTON_BOARD.value #BoardIds.SYNTHETIC_BOARD.value #
-player_1_serial_port = 'COM' # Enter the COM port for the first player (i.e, 'COM7')
+player_1_serial_port = None # Enter the COM port for the first player (i.e, 'COM7')
 
 
 player_2_name = 'Player 2'
-player_2_board_id = BoardIds.CYTON_BOARD.value #BoardIds.SYNTHETIC_BOARD.value 
-player_2_serial_port = 'COM' # Enter the COM port for the first player (i.e, 'COM9')
+player_2_board_id = BoardIds.CYTON_BOARD.value #BoardIds.SYNTHETIC_BOARD.value #
+player_2_serial_port = None # Enter the COM port for the first player (i.e, 'COM9')
 
 # Set the duration of each epoch in seconds
 epoch_duration = 2

@@ -126,32 +126,29 @@ class BrainFlowBoardSetup:
         sampling_rate = BoardShim.get_sampling_rate(board_to_use)
         
         return eeg_channels, sampling_rate
-    
+
     def find_device_ports(self):
         """
-        Finds all compatible BrainFlow devices by checking the available serial ports based on VID/PID.
+        Finds all compatible BrainFlow devices by checking the available serial ports.
 
-        This method iterates over available serial ports on the computer and directly adds ports 
-        with known OpenBCI VID/PID pairs to the list of compatible devices without testing each connection.
+        This method iterates over available serial ports on the computer and attempts
+        to detect and verify BrainFlow-compatible devices by initializing a session.
 
         Returns:
             list: A list of dictionaries containing 'port', 'serial_number', and 'description' for each compatible device.
-                Returns an empty list if no devices are found.
+                    Returns an empty list if no devices are found.
         """
-        # Known VID/PID pairs for OpenBCI boards
-        openbci_vid_pid_pairs = [
-            (0x0403, 0x6015),  # Cyton with FTDI chip
-            (0x04D8, 0xF372)   # Ganglion
-        ]
-
         BoardShim.disable_board_logger()
-        ports = list(serial.tools.list_ports.comports())
+        ports = serial.tools.list_ports.comports()
         compatible_ports = []
 
-        # Iterate over all available ports
         for port in ports:
-            # Check if the port's VID and PID match any known OpenBCI VID/PID pairs
-            if (port.vid, port.pid) in openbci_vid_pid_pairs:
+            try:
+                self.params.serial_port = port.device
+                board = BoardShim(self.board_id, self.params)
+                board.prepare_session()
+                board.release_session()
+                
                 device_info = {
                     'port': port.device,
                     'serial_number': port.serial_number,
@@ -159,7 +156,9 @@ class BrainFlowBoardSetup:
                 }
                 print(f"Compatible device found: Serial Number: {port.serial_number}, Description: {port.description}")
                 compatible_ports.append(device_info)
-
+            except BrainFlowError:
+                continue
+        
         if not compatible_ports:
             raise Exception("No compatible BrainFlow devices found.")
         
@@ -176,16 +175,14 @@ class BrainFlowBoardSetup:
         Raises:
             BrainFlowError: If the board fails to prepare the session or start streaming.
         """
+        
         if self.master_board is None:
             if self.board_id in [BoardIds.PLAYBACK_FILE_BOARD.value, BoardIds.SYNTHETIC_BOARD.value]:
                 self.serial_port = ''
             if self.serial_port is None:
                 print("No serial port provided, attempting to auto-detect...")
                 ports_info = self.find_device_ports()
-                if self.instance_id != 0:
-                    self.serial_port = ports_info[self.instance_id - 1]['port'] if ports_info else None
-                else:
-                    self.serial_port = ports_info[self.instance_id]['port'] if ports_info else None
+                self.serial_port = ports_info[0]['port'] if ports_info else None
                 if not self.serial_port:
                     print("No compatible device found. Setup failed.")
                     return
