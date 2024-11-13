@@ -10,15 +10,19 @@
 4. The game ends when the rope reaches one player’s side, determining the winner.
 
 ## Running The Game
-1. **Open `AlphaWar.py` in VSCode:**
+1. **Open `COM_Finder.py`:**
+   - Plug only one Cyton Dongle in and run the script by clicking the small 'play' arrow in the top right to start the game.
+   - This will output which COM port is associated with the board you plugged in - remember which player's board this is. [i.e, 'COM7']
+   - Now plug in the other Cyton dongle and run the script again. This time there should be two devices; one from the first board and now a second from the other board.
+2. **Open `AlphaWar.py` & Adjust Configuration**
    - Any config adjustments will be at the top of script, immediately after imports
-2. **Adjust Configuration:**
    - Adjust player names - this can be any string 
+   - Adjust serial ports:
+      - Set each player to each of the discovered COM ports - now you will know who is player 1 and who is player 2
    - Adjust the board ID: 
-     - `BoardIds.SYNTHETIC_BOARD.value` is used for testing - this uses *Simulated data*
      - `BoardIds.CYTON_BOARD.value` should be used if using the OpenBCI Cyton Boards
-   -  (Optional) Adjust serial port:
-      -  This sets each board to be a specific player, leave them as *None* to automatically detect and connect.
+     - `BoardIds.SYNTHETIC_BOARD.value` is used for testing - this uses *Simulated data*
+
 3. **Select Environment & Start the Game:**
    - Press `ctrl + shift + p`, then enter/select "Python: Select Interpreter" -> find and select "Python"
    - When you have `AlphaWar.py` open, click the small 'play' arrow in the top right to start the game.
