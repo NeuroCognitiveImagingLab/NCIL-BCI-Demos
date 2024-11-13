@@ -170,8 +170,8 @@ class BrainFlowBoardSetup:
         """
         
         if self.master_board is None:
-            # if self.board_id in [BoardIds.PLAYBACK_FILE_BOARD.value, BoardIds.SYNTHETIC_BOARD.value]:
-            #     self.serial_port = ''
+            if self.board_id in [BoardIds.PLAYBACK_FILE_BOARD.value, BoardIds.SYNTHETIC_BOARD.value]:
+                self.serial_port = ''
             if self.serial_port is None:
                 print("No serial port provided, attempting to auto-detect...")
                 ports_info = self.find_device_ports()
@@ -179,21 +179,11 @@ class BrainFlowBoardSetup:
                 if not self.serial_port:
                     print("No compatible device found. Setup failed.")
                     return
-        
-        # if self.serial_port is None and self.master_board is None and self.board_id not in [BoardIds.PLAYBACK_FILE_BOARD.value, BoardIds.SYNTHETIC_BOARD.value]:
-        #     print("No serial port provided, attempting to auto-detect...")
-        #     ports_info = self.find_device_ports()
-        #     self.serial_port = ports_info[0]['port'] if ports_info else None
-        #     if not self.serial_port:
-        #         print("No compatible device found. Setup failed.")
-        #         return
-        # elif self.serial_port is None and self.master_board is not None:
-        #     self.serial_port = ''
-        # elif self.serial_port is None and self.board_id in [BoardIds.PLAYBACK_FILE_BOARD.value, BoardIds.SYNTHETIC_BOARD.value]:
-        #     self.serial_port = ''
-        # else:
-        #     print(f"Board_id: {self.board_id}, Master_board: {self.master_board}")
-        #     raise ValueError("Error finding serial port for the board.")
+        elif self.master_board is not None:
+            self.serial_port = ''
+        else:
+            print("No serial port provided and master board is not set. Setup failed.")
+            return
         
         self.params.serial_port = self.serial_port
         self.board = BoardShim(self.board_id, self.params)
