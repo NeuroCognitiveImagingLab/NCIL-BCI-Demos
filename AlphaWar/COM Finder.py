@@ -1,5 +1,9 @@
 import serial.tools.list_ports
 
+"""
+This file scans all USB ports and lists detailed information for each port.
+"""
+
 def list_all_com_ports():
     """
     Lists all available COM ports with detailed information.
@@ -19,3 +23,4 @@ def list_all_com_ports():
 
 # Run this function to get a detailed list of COM port information
 list_all_com_ports()
+
