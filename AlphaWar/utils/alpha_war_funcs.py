@@ -1,15 +1,10 @@
-import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BrainFlowError, BoardIds
 import serial.tools.list_ports
 import time
 import pygame
-import sys
 import pygame.font
-import argparse
 import pygame.mixer
 import numpy as np
-import matplotlib.pyplot as plt
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 def list_all_com_ports():
@@ -21,8 +16,8 @@ def list_all_com_ports():
         if (port.vid, port.pid) in known_vid_pid_pairs:
             compatible_ports.append(port.device)
     
-    if not compatible_ports:
-        print("No compatible devices found. Please ensure the dongle is connected with the switch set toward the dongle's male connector, and that the board is in 'PC' mode.")
+    # if not compatible_ports:
+    #     print("No compatible devices found. Please ensure the dongle is connected with the switch set toward the dongle's male connector, and that the board switch is in 'PC' mode.")
     return compatible_ports
 
 def display_button(screen, text, rect, font):
@@ -30,7 +25,6 @@ def display_button(screen, text, rect, font):
     button_text = font.render(text, True, (0, 0, 0))
     screen.blit(button_text, button_text.get_rect(center=rect.center))
     
-
 def scan_ports_and_assign(existing_player_1_port=None, existing_player_2_port=None):
     available_ports = list_all_com_ports()
 
@@ -46,18 +40,62 @@ def scan_ports_and_assign(existing_player_1_port=None, existing_player_2_port=No
 
     return player_1_port, player_2_port
 
-
-
-# def scan_ports_and_assign():
-#     available_ports = list_all_com_ports()
-#     if len(available_ports) >= 2:
-#         return available_ports[0], available_ports[1]
-#     else:
-#         print("Insufficient compatible devices found.")
-#         return None, None
-
-
-
+def calculate_alpha_power(data, board_id, normalize='betaalpha'):
+    """
+    Calculate the alpha power of EEG data with different normalization options.
+    
+    Parameters:
+    - data: numpy array, shape (n_channels, n_samples)
+        The EEG data where each row represents a channel and each column represents a sample.
+    - board_id: int
+        The board ID for getting the sampling rate using BoardShim.
+    - normalize: str, optional
+        Normalization method. Options are:
+        - 'max': Normalizes by the maximum FFT value for each channel.
+        - 'norm': Normalizes by the vector norm of the power spectrum for each channel.
+        - 'betaalpha': Returns the ratio of raw beta power (12-30 Hz) to raw alpha power (8-12 Hz).
+        
+    Returns:
+    - float: The calculated alpha power, normalized based on the specified method.
+    """
+    # Compute the power spectrum for each channel
+    ps = np.abs(np.fft.fft(data, axis=1))**2
+    freqs = np.fft.fftfreq(data.shape[1], 1 / BoardShim.get_sampling_rate(board_id))
+    
+    # Define the alpha and beta frequency ranges
+    alpha_range = (freqs >= 8) & (freqs <= 12)
+    beta_range = (freqs > 12) & (freqs <= 30)
+    
+    # Calculate the alpha power for each channel by summing the power in the alpha band
+    alpha_powers = np.sum(ps[:, alpha_range], axis=1)
+    
+    # Normalization or ratio calculations based on the specified method
+    if normalize == 'max':
+        # Normalize by the maximum FFT value per channel
+        normalization_factor = np.max(ps, axis=1)
+        normalized_alpha_powers = alpha_powers / normalization_factor
+        return np.sum(normalized_alpha_powers)
+    
+    elif normalize == 'norm':
+        # Normalize by the vector norm of the power spectrum for each channel
+        normalization_factor = np.linalg.norm(ps, axis=1)
+        normalized_alpha_powers = alpha_powers / normalization_factor
+        return np.sum(normalized_alpha_powers)
+    
+    elif normalize == 'betaalpha':
+        # Calculate the ratio of beta power to alpha power across all channels
+        beta_powers = np.sum(ps[:, beta_range], axis=1)
+        total_alpha_power = np.sum(alpha_powers)
+        total_beta_power = np.sum(beta_powers)
+        
+        # Avoid division by zero
+        if total_alpha_power == 0:
+            return 0
+        beta_alpha_ratio = total_beta_power / total_alpha_power
+        return beta_alpha_ratio
+    
+    else:
+        raise ValueError("The normalize parameter must be 'max', 'norm', or 'betaalpha'")
 
 
 
@@ -369,61 +407,3 @@ class BrainFlowBoardSetup:
         """
         self.stop()
 
-
-
-def calculate_alpha_power(data, board_id, normalize='betaalpha'):
-    """
-    Calculate the alpha power of EEG data with different normalization options.
-    
-    Parameters:
-    - data: numpy array, shape (n_channels, n_samples)
-        The EEG data where each row represents a channel and each column represents a sample.
-    - board_id: int
-        The board ID for getting the sampling rate using BoardShim.
-    - normalize: str, optional
-        Normalization method. Options are:
-        - 'max': Normalizes by the maximum FFT value for each channel.
-        - 'norm': Normalizes by the vector norm of the power spectrum for each channel.
-        - 'betaalpha': Returns the ratio of raw beta power (12-30 Hz) to raw alpha power (8-12 Hz).
-        
-    Returns:
-    - float: The calculated alpha power, normalized based on the specified method.
-    """
-    # Compute the power spectrum for each channel
-    ps = np.abs(np.fft.fft(data, axis=1))**2
-    freqs = np.fft.fftfreq(data.shape[1], 1 / BoardShim.get_sampling_rate(board_id))
-    
-    # Define the alpha and beta frequency ranges
-    alpha_range = (freqs >= 8) & (freqs <= 12)
-    beta_range = (freqs > 12) & (freqs <= 30)
-    
-    # Calculate the alpha power for each channel by summing the power in the alpha band
-    alpha_powers = np.sum(ps[:, alpha_range], axis=1)
-    
-    # Normalization or ratio calculations based on the specified method
-    if normalize == 'max':
-        # Normalize by the maximum FFT value per channel
-        normalization_factor = np.max(ps, axis=1)
-        normalized_alpha_powers = alpha_powers / normalization_factor
-        return np.sum(normalized_alpha_powers)
-    
-    elif normalize == 'norm':
-        # Normalize by the vector norm of the power spectrum for each channel
-        normalization_factor = np.linalg.norm(ps, axis=1)
-        normalized_alpha_powers = alpha_powers / normalization_factor
-        return np.sum(normalized_alpha_powers)
-    
-    elif normalize == 'betaalpha':
-        # Calculate the ratio of beta power to alpha power across all channels
-        beta_powers = np.sum(ps[:, beta_range], axis=1)
-        total_alpha_power = np.sum(alpha_powers)
-        total_beta_power = np.sum(beta_powers)
-        
-        # Avoid division by zero
-        if total_alpha_power == 0:
-            return 0
-        beta_alpha_ratio = total_beta_power / total_alpha_power
-        return beta_alpha_ratio
-    
-    else:
-        raise ValueError("The normalize parameter must be 'max', 'norm', or 'betaalpha'")

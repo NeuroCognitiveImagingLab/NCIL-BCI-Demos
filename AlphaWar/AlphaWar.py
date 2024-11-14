@@ -4,7 +4,7 @@ import pygame.font
 import pygame.mixer
 import numpy as np
 import matplotlib.pyplot as plt
-from alpha_war_funcs import *
+from AlphaWar.utils.alpha_war_funcs import *
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 # Set the board IDs and serial ports for the players

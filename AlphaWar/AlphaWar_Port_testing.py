@@ -4,7 +4,7 @@ import pygame.font
 import pygame.mixer
 import numpy as np
 import matplotlib.pyplot as plt
-from alpha_war_funcs import *
+from utils.alpha_war_funcs import *
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 # # Set the board IDs and serial ports for the players
@@ -37,9 +37,6 @@ def main():
     alpha_font = pygame.font.Font(None, 28)
     font = pygame.font.Font(None, 36)
     label_font = pygame.font.Font(None, 24)
-    winner = ''
-    rope_width = 250
-    rope_height = 10
     width, height = 1440, 800
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption('Tug of War')
@@ -51,6 +48,7 @@ def main():
     player_1_serial_port, player_2_serial_port = None, None
     button_width, button_height = 200, 50
     ports_assigned = False
+    no_devices_message = None  # Initialize error message
 
     # Centered button positions
     scan_button_rect = pygame.Rect((width - button_width) // 2, (height - button_height) // 2 - 100, button_width, button_height)
@@ -70,8 +68,6 @@ def main():
             else:
                 port_text += " | Waiting for Player 2..."
             ports_assigned_text = label_font.render(port_text, True, (0, 0, 0))
-            
-            # Center the port information text
             text_rect = ports_assigned_text.get_rect(center=(width // 2, height // 2))
             screen.blit(ports_assigned_text, text_rect)
 
@@ -80,14 +76,26 @@ def main():
             ports_assigned = True
             display_button(screen, "Start", start_button_rect, font)
 
+        # Display "No compatible devices found" message if no devices are found
+        if no_devices_message:
+            no_devices_text = label_font.render(no_devices_message, True, (255, 0, 0))
+            no_devices_text_rect = no_devices_text.get_rect(center=(width // 2, height // 2 + 200))
+            screen.blit(no_devices_text, no_devices_text_rect)
+
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                return
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if scan_button_rect.collidepoint(event.pos):
-                    player_1_serial_port, player_2_serial_port = scan_ports_and_assign()
+                    # Scan ports and update the error message if no devices are found
+                    player_1_serial_port, player_2_serial_port = scan_ports_and_assign(player_1_serial_port, player_2_serial_port)
+                    if not player_1_serial_port and not player_2_serial_port:
+                        no_devices_message = "No compatible devices found. Please ensure the dongle is connected with the switch set toward the dongle's male connector, and that the board switch is in 'PC' mode."
+                    else:
+                        no_devices_message = None  # Clear message if devices are found
                 elif start_button_rect.collidepoint(event.pos) and ports_assigned:
                     setup_running = False  # Exit setup loop and start game
                     
@@ -101,7 +109,7 @@ def main():
     # Set up the BrainFlow boards
     board1 = BrainFlowBoardSetup(board_id=player_1_board_id, name=player_1_name, serial_port=player_1_serial_port)
     board2 = BrainFlowBoardSetup(board_id=player_2_board_id, name=player_2_name, serial_port=player_2_serial_port)
-    
+
     # Connect and stream from the boards
     time.sleep(1)
     board1.setup()
