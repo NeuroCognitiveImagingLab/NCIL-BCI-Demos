@@ -11,56 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
-
-def list_all_com_ports():
-    known_vid_pid_pairs = [(0x0403, 0x6015)]
-    ports = list(serial.tools.list_ports.comports())
-    compatible_ports = []
-
-    for port in ports:
-        if (port.vid, port.pid) in known_vid_pid_pairs:
-            compatible_ports.append(port.device)
-    
-    if not compatible_ports:
-        print("No compatible devices found. Please ensure the dongle is connected with the switch set toward the dongle's male connector, and that the board is in 'PC' mode.")
-    return compatible_ports
-
-def display_button(screen, text, rect, font):
-    pygame.draw.rect(screen, (180, 180, 180), rect)
-    button_text = font.render(text, True, (0, 0, 0))
-    screen.blit(button_text, button_text.get_rect(center=rect.center))
-    
-
-def scan_ports_and_assign(existing_player_1_port=None, existing_player_2_port=None):
-    available_ports = list_all_com_ports()
-
-    # If Player 1 already has a port assigned, keep it as Player 1's port
-    if existing_player_1_port in available_ports:
-        player_1_port = existing_player_1_port
-        available_ports.remove(player_1_port)
-    else:
-        player_1_port = available_ports.pop(0) if available_ports else None
-
-    # Assign the next available port to Player 2, ensuring it’s not Player 1’s port
-    player_2_port = existing_player_2_port if (existing_player_2_port in available_ports) else (available_ports[0] if available_ports else None)
-
-    return player_1_port, player_2_port
-
-
-
-# def scan_ports_and_assign():
-#     available_ports = list_all_com_ports()
-#     if len(available_ports) >= 2:
-#         return available_ports[0], available_ports[1]
-#     else:
-#         print("Insufficient compatible devices found.")
-#         return None, None
-
-
-
-
-
-
 class BrainFlowBoardSetup:
     """
     A class to manage the setup, configuration, and control of a BrainFlow board.
