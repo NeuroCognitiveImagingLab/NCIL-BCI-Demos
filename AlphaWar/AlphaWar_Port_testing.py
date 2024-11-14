@@ -10,12 +10,9 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 # # Set the board IDs and serial ports for the players
 player_1_name = 'Player 1'
 player_1_board_id = BoardIds.SYNTHETIC_BOARD.value # BoardIds.CYTON_BOARD.value
-player_1_serial_port = None # Enter the COM port for the first player (i.e, 'COM7')
-
 
 player_2_name = 'Player 2'
 player_2_board_id = BoardIds.SYNTHETIC_BOARD.value #BoardIds.CYTON_BOARD.value
-player_2_serial_port = None # Enter the COM port for the first player (i.e, 'COM9')
 
 # Set the duration of each epoch in seconds
 epoch_duration = 2
@@ -34,10 +31,15 @@ pygame.mixer.init(frequency=20, size=-16, channels=2)
 def main():
     # Set the font
     pygame.font.init()
+    
+    width, height = 1440, 800
+    
+    label_font = pygame.font.Font(None, 24)
     alpha_font = pygame.font.Font(None, 28)
     font = pygame.font.Font(None, 36)
-    label_font = pygame.font.Font(None, 24)
-    width, height = 1440, 800
+    winner = ''
+    rope_width = 250
+    rope_height = 10
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption('Tug of War')
     

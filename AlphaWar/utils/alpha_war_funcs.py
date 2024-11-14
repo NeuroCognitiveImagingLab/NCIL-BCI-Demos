@@ -19,6 +19,7 @@ def list_all_com_ports():
     # if not compatible_ports:
     #     print("No compatible devices found. Please ensure the dongle is connected with the switch set toward the dongle's male connector, and that the board switch is in 'PC' mode.")
     return compatible_ports
+    # return ["COM6", "COM10"]
 
 def display_button(screen, text, rect, font):
     pygame.draw.rect(screen, (180, 180, 180), rect)
