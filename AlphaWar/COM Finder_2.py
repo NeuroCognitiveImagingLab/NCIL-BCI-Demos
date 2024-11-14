@@ -1,13 +1,11 @@
 import serial.tools.list_ports
 
-"""
-This file only lists COM ports with the device and COM port for known VID/PID pairs. (i.e., OpenBCI Cyton Board Dongle)
-"""
 
 def list_all_com_ports():
     """
-    Lists all available COM ports with detailed information for known VID/PID pairs.
+    This file only lists COM ports with the device and COM port for known VID/PID pairs. (i.e., OpenBCI Cyton Board Dongle)
     """
+
     # Known VID/PID pairs (example includes OpenBCI devices)
     known_vid_pid_pairs = [
         (0x0403, 0x6015),  # Cyton with FTDI chip

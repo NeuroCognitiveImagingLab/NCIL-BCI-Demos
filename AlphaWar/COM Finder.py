@@ -1,13 +1,10 @@
 import serial.tools.list_ports
 
-"""
-This file scans all USB ports and lists detailed information for each port.
-"""
-
 def list_all_com_ports():
     """
-    Lists all available COM ports with detailed information.
+    This function scans all USB ports and lists detailed information for each port.
     """
+    
     ports = list(serial.tools.list_ports.comports())
     if not ports:
         print("No COM ports found.")
