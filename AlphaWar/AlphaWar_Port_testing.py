@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from utils.alpha_war_funcs import *
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
-# # Set the board IDs and serial ports for the players
+# Set the board IDs and serial ports for the players
 player_1_name = 'Player 1'
 player_1_board_id = BoardIds.SYNTHETIC_BOARD.value # BoardIds.CYTON_BOARD.value
 
@@ -22,6 +22,7 @@ alpha_normalization = 'betaalpha'
 # - 'max': Returns the sum of alpha power across channels, with each channel's alpha power normalized by the channel's maximum FFT power.
 # - 'norm': Returns the sum of alpha power across channels, with each channel's alpha power normalized by the vector norm of its power spectrum.
 # - 'betaalpha': Returns the ratio of total beta power (12-30 Hz) to total alpha power (8-12 Hz) across all channels.
+
 
 
 pygame.init()
